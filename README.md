@@ -6,6 +6,15 @@
 - ~10GB of space on hard drive (and a lot more if you want to run a "production" instance)
 
 ## Usage
+The installation command must be executed by a user with Docker privileges. Use the following command to add a user to
+the `docker` group: 
+
+```shell
+usermod -aG docker <USER_NAME>
+```
+
+Afterwards you can start the installer by calling the install script:
+
 ```shell
 ./em-install.sh
 ```
