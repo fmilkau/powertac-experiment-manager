@@ -42,13 +42,15 @@ WEATHER_DB_STORAGE_PATH=${root_dir}/persistence/weather
 WEATHER_SEED_FILE=${deployment_dir}/weather-data.sql
 WEATHER_DB_PASSWORD=repulses52besmirch39galena
 MARIADB_VERSION=latest" > "${deployment_dir}/experiment-manager.env"
+
 echo "{
   \"orchestrator\": \"http://${host_ip}:8050\",
   \"weather\": \"http://${host_ip}:8070\"
 }" > "${deployment_dir}/discovery.json"
+
 echo -e "#!/usr/bin/env bash
 ${compose_command} -f ${deployment_dir}/experiment-manager.yml --env-file ${deployment_dir}/experiment-manager.env -p pem up -d
-echo -e \"http://${host_ip}:8060\"" > "${deployment_dir}/em-start.sh"
+echo -e \"You can now open the EM UI by using this url: http://${host_ip}:8060. The orchestrator might take a bit to start however.\"" > "${deployment_dir}/em-start.sh"
 chmod +x "${deployment_dir}/em-start.sh"
 
 # copy resources
@@ -58,18 +60,23 @@ cp "$installer_dir"/config/* "${deployment_dir}"
 
 # build brokers
 brokers_dir="${root_dir}/brokers"
-git clone https://github.com/powertac/broker-images.git "${brokers_dir}"
-for broker_dir in "${brokers_dir}"/*/
-do
-    broker_dir=${broker_dir%*/}
-    broker_name="${broker_dir##*/}"
-    if ! docker build --quiet --tag "powertac/${broker_name}" "${broker_dir}";
-    then
-      echo "ERROR: could not build broker '${broker_name}'"
-    else
-      echo "image build for '$broker_name' successful"
-    fi
-done
+if [ ! -d "$brokers_dir" ];
+  then
+    git clone https://github.com/powertac/broker-images.git "${brokers_dir}"
+    for broker_dir in "${brokers_dir}"/*/
+    do
+        broker_dir=${broker_dir%*/}
+        broker_name="${broker_dir##*/}"
+        if ! docker build --quiet --tag "powertac/${broker_name}" "${broker_dir}";
+        then
+          echo "ERROR: could not build broker '${broker_name}'"
+        else
+          echo "image build for '$broker_name' successful"
+        fi
+    done
+  else
+    echo "Skipping existing brokers dir ($brokers_dir)"
+fi
 
 # create containers
 $compose_command \
