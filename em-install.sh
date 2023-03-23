@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
+
 # check requirements
 if ! [ -x "$(command -v docker)" ]; then
-  echo 'Error: docker is not available.' >&2
+  echo 'Error: docker command is not available.' >&2
   exit 1
 fi
 compose_command="docker-compose"
@@ -9,7 +10,7 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   compose_command="docker compose"
 fi
 if ! $compose_command > /dev/null 2>&1; then
-  echo "ERROR: compose command '$compose_command' not available" >&2
+  echo "ERROR: docker compose command '$compose_command' not available" >&2
   exit 1
 fi
 
