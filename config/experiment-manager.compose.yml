@@ -2,6 +2,7 @@ services:
 
   web-client:
     image: "ghcr.io/powertac/web-client:${WEB_CLIENT_VERSION}"
+    command: "--proxy http://${HOST_IP}:${WEB_CLIENT_HOST_PORT}?"
     # TODO : add config via discovery.json to web-client
     volumes:
       - "./services.json:/opt/powertac/web-client/services.json"
