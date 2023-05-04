@@ -16,6 +16,11 @@ $compose_command \
   --project-name "pem" \
   down
 
+if [ $? -ne 0 ]; then
+  echo "ERROR: unable to remove one or more containers"
+  exit 1
+fi
+
 if [ "$1" == "--remove-files" ] || [ "$1" == "-r" ]; then
   echo "Removing files ..."
   rm -r "$path_em"
