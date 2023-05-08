@@ -1,0 +1,4 @@
+{
+  "orchestrator": "http://127.0.0.1:60603",
+  "weatherserver": "http://127.0.0.1:60606"
+}

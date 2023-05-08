@@ -1,0 +1,79 @@
+services:
+
+  web-client:
+    container_name: powertac-web-client
+    image: "ghcr.io/powertac/web-client:${EM_WEB_CLIENT_VERSION}"
+    volumes:
+      - "./web-client.nginx.conf:/etc/nginx/nginx.conf:ro"
+      - "./services.local.json:/usr/share/nginx/html/services.json"
+    ports:
+      - "${EM_HOST}:${EM_WEB_CLIENT_HOST_PORT}:80"
+
+  orchestrator:
+    container_name: powertac-orchestrator
+    depends_on:
+      orchestrator_db:
+        condition: service_healthy
+    image: "ghcr.io/powertac/orchestrator:${EM_ORCHESTRATOR_VERSION}"
+    volumes:
+      - "./orchestrator.local.properties:/opt/powertac/orchestrator/application.properties"
+      - "${PWD}:/var/opt/powertac"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+      - "${EM_HOST}:${EM_ORCHESTRATOR_HOST_PORT}:80"
+    environment:
+      EM_ROOT_PATH: "${PWD}"
+      EM_WEATHER_SERVER_HOST_PORT: "${EM_WEATHER_SERVER_HOST_PORT}"
+      MYSQL_PASSWORD: "${EM_ORCHESTRATOR_DB_PASSWORD}"
+
+  weather-server:
+    container_name: powertac_weather-server
+    depends_on:
+      weather_db:
+        condition: service_healthy
+    image: "ghcr.io/powertac/weather-server:${EM_WEATHER_SERVER_VERSION}"
+    volumes:
+      - "./weather-server.properties:/opt/powertac/weather-server/application.properties"
+      - "./weather-data.sql:/var/opt/powertac/weather.sql"
+    hostname: weather-server
+    ports:
+      - "${EM_HOST}:${EM_WEATHER_SERVER_HOST_PORT}:80"
+    environment:
+      MYSQL_HOST: "weather_db"
+      MYSQL_PASSWORD: "${EM_WEATHER_DB_PASSWORD}"
+
+  orchestrator_db:
+    container_name: powertac-orchestrator-db
+    image: "mariadb:${EM_MARIADB_VERSION}"
+    volumes:
+      - "${PWD}/persistence/orchestrator:/var/lib/mysql"
+    environment:
+      MYSQL_DATABASE: powertac_orchestrator
+      MYSQL_USER: powertac_orchestrator
+      MYSQL_PASSWORD: "${EM_ORCHESTRATOR_DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    healthcheck:
+      test: "/usr/bin/mysql -upowertac_orchestrator -p${EM_ORCHESTRATOR_DB_PASSWORD} --execute \"USE powertac_orchestrator;\""
+      start_period: 30s
+      interval: 1s
+      timeout: 1s
+      retries: 90
+
+  weather_db:
+    container_name: powertac-weather-db
+    image: "mariadb:${EM_MARIADB_VERSION}"
+    volumes:
+      - "${PWD}/persistence/weather-server:/var/lib/mysql"
+      - "./weather-data.sql:/var/opt/powertac/weather.sql"
+    command: ["--max_allowed_packet=100000000"]
+    environment:
+      MYSQL_DATABASE: powertac_weather
+      MYSQL_USER: powertac_weather
+      MYSQL_PASSWORD: "${EM_WEATHER_DB_PASSWORD}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    healthcheck:
+      test: "/usr/bin/mysql -upowertac_weather -p${EM_WEATHER_DB_PASSWORD} --execute \"USE powertac_weather;\""
+      start_period: 30s
+      interval: 1s
+      timeout: 1s
+      retries: 90

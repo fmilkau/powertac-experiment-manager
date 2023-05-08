@@ -14,8 +14,9 @@ the `docker` group:
 usermod -aG docker <USER_NAME>
 ```
 
-Afterwards you can start the installer by calling the installation script:
+## Run 
 
 ```shell
-./em-install.sh
+cd /path/to/config/dir
+docker-compose --file em.local.yml --env-file em.env --project-name powertac up --detach
 ```
