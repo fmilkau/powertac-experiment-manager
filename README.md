@@ -12,14 +12,15 @@
 
 ### Power TAC server image(s)
 
-To download the server images, use the `docker pull` command:
+Use the `docker pull` command to download the server image(s):
 
 ```shell
-$ docker pull ghcr.io/powertac/server:<VERSION>`
+docker pull ghcr.io/powertac/server:<VERSION>
 ```
 
 A list of available image versions can be found here:
-[Power TAC packages > server](https://github.com/powertac/powertac-server/pkgs/container/server).
+[Power TAC packages > server](https://github.com/powertac/powertac-server/pkgs/container/server). The most recent stable
+server image will have the `latest` tag: `ghcr.io/powertac/server:latest`.
 
 ### Broker images
 
@@ -28,9 +29,9 @@ instructions.
 
 ### Configuration
 
-Adapt the default configuration `.env.example` to match your requirements. The default configuration is designed to run
-the Experiment Manager in local mode, meaning that it is only available on the machine it is running on (instructions
-for server deployment will follow). For local deployment, simply change the database passwords 
+Rename the default configuration `.env.example` to `.env` and adapt it to your requirements. The default configuration
+is designed to run the Experiment Manager in local mode, meaning that it is only available on the machine it is running
+on. For local deployment, simply change the database passwords 
 (`EM_ORCHESTRATOR_DB_PASSWORD`, `EM_WEATHER_DB_PASSWORD`) and you're good to go.
 
 ```dotenv
@@ -82,6 +83,7 @@ browser via `http://localhost:60600` (assuming you used the default configuratio
 ```shell
 # stop
 docker compose --file em.compose.yml --env-file .env stop
+
 # start
 docker compose --file em.compose.yml --env-file .env start
 ```
