@@ -62,7 +62,7 @@ The Experiment Manager consists of five core services that are run inside Docker
 These services are managed via [Docker Compose](https://docs.docker.com/compose/). Please refer to its documentation for
 a complete reference of available operations.
 
-Switch to your Experiment Manager directory for the following command to work:
+Switch to your Experiment Manager directory for the following commands to work:
 
 ```shell
 cd /path/to/experiment-manager
@@ -74,7 +74,7 @@ cd /path/to/experiment-manager
 docker compose --file em.compose.yml --env-file .env up --detach
 ```
 
-On first time setup, this command take some time to complete. Afterwards the web client should be available in your
+On first time setup, this command may take some time to complete. Afterwards the web client should be available in your
 browser via `http://localhost:60600` (assuming you used the default configuration) or in a more generalized form via
 `http://<EM_HOST>:<EM_WEB_CLIENT_HOST_PORT>`.
 
@@ -93,7 +93,7 @@ These commands will respectively start and stop the service containers.
 ### Remove
 
 ```shell
-docker compose --file em.compose.yml --env-file .env stop
+docker compose --file em.compose.yml --env-file .env down
 ```
 
 This command will remove the service containers. To completely remove all associated resources
