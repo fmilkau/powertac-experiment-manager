@@ -1,5 +1,7 @@
 .idea
-persistence
+baselines
 brokers
 games
-em.env
+persistence
+treatments
+.env

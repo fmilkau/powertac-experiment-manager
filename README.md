@@ -1,22 +1,103 @@
-# Power TAC Experiment Manager Installer
+# Power TAC Experiment Manager
+
 
 ## Requirements
 - Docker (https://docs.docker.com/engine/install/)
 - Docker Compose (https://docs.docker.com/compose/install/)
 - ~10GB+ of space on hard drive (and a lot more if you want to run a "production" instance)
-- root access 
+- root privileges
 
-## Usage
-The installation command must be executed by a user with Docker privileges. Use the following command to add a user to
-the `docker` group: 
+
+## Preparation
+
+### Power TAC server image(s)
+
+To download the server images, use the `docker pull` command:
 
 ```shell
-usermod -aG docker <USER_NAME>
+$ docker pull ghcr.io/powertac/server:<VERSION>`
 ```
 
-## Run 
+A list of available image versions can be found here:
+[Power TAC packages > server](https://github.com/powertac/powertac-server/pkgs/container/server).
+
+### Broker images
+
+Please refer to the [powertac/broker-images](https://github.com/powertac/broker-images) repository for installation
+instructions.
+
+### Configuration
+
+Adapt the default configuration `.env.example` to match your requirements. The default configuration is designed to run
+the Experiment Manager in local mode, meaning that it is only available on the machine it is running on (instructions
+for server deployment will follow). For local deployment, simply change the database passwords 
+(`EM_ORCHESTRATOR_DB_PASSWORD`, `EM_WEATHER_DB_PASSWORD`) and you're good to go.
+
+```dotenv
+EM_HOST=127.0.0.1
+
+EM_WEB_CLIENT_VERSION=latest
+EM_WEB_CLIENT_HOST_PORT=60600
+
+EM_ORCHESTRATOR_VERSION=latest
+EM_ORCHESTRATOR_HOST_PORT=60603
+EM_ORCHESTRATOR_DB_PASSWORD=<password>
+
+EM_WEATHER_SERVER_VERSION=latest
+EM_WEATHER_SERVER_HOST_PORT=60606
+EM_WEATHER_DB_PASSWORD=<password>
+```
+
+
+## Running the Experiment Manager
+
+The Experiment Manager consists of five core services that are run inside Docker containers:
+
+- Orchestrator ([powertac/powertac-experiment-scheduler](https://github.com/powertac/powertac-experiment-scheduler))
+- Web Client ([powertac/web-client](https://github.com/powertac/web-client))
+- Weather Server ([powertac/powertac-weather-server](https://github.com/powertac/powertac-weather-server))
+- Databases for each the Orchestrator and Weather Server 
+
+These services are managed via [Docker Compose](https://docs.docker.com/compose/). Please refer to its documentation for
+a complete reference of available operations.
+
+Switch to your Experiment Manager directory for the following command to work:
 
 ```shell
-cd /path/to/config/dir
-docker-compose --file em.local.yml --env-file em.env --project-name powertac up --detach
+cd /path/to/experiment-manager
+```
+
+### Setup
+
+```shell
+docker compose --file em.compose.yml --env-file .env up --detach
+```
+
+On first time setup, this command take some time to complete. Afterwards the web client should be available in your
+browser via `http://localhost:60600` (assuming you used the default configuration) or in a more generalized form via
+`http://<EM_HOST>:<EM_WEB_CLIENT_HOST_PORT>`.
+
+### Stop & Start
+
+```shell
+# stop
+docker compose --file em.compose.yml --env-file .env stop
+# start
+docker compose --file em.compose.yml --env-file .env start
+```
+
+These commands will respectively start and stop the service containers.
+
+### Remove
+
+```shell
+docker compose --file em.compose.yml --env-file .env stop
+```
+
+This command will remove the service containers. To completely remove all associated resources
+(e.g. for a re-installation), remove the following directories as well: `baselines`, `brokers`, `games`, `persistence`
+and `treatments`:
+
+```shell
+rm -rf brokers/ games/ baselines/ persistence/ treatments/
 ```
