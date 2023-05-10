@@ -31,22 +31,23 @@ instructions.
 
 Rename the default configuration `.env.example` to `.env` and adapt it to your requirements. The default configuration
 is designed to run the Experiment Manager in local mode, meaning that it is only available on the machine it is running
-on. For local deployment, simply change the database passwords 
-(`EM_ORCHESTRATOR_DB_PASSWORD`, `EM_WEATHER_DB_PASSWORD`) and you're good to go.
+on. For local deployment, simply change the passwords 
+(`EM_ADMIN_PASSWORD`, `EM_ORCHESTRATOR_DB_PASSWORD`, `EM_WEATHER_DB_PASSWORD`) and you're good to go.
 
 ```dotenv
 EM_HOST=127.0.0.1
+EM_ADMIN_PASSWORD=<admin-password>
 
 EM_WEB_CLIENT_VERSION=latest
 EM_WEB_CLIENT_HOST_PORT=60600
 
 EM_ORCHESTRATOR_VERSION=latest
 EM_ORCHESTRATOR_HOST_PORT=60603
-EM_ORCHESTRATOR_DB_PASSWORD=<password>
+EM_ORCHESTRATOR_DB_PASSWORD=<orchestrator-db-password>
 
 EM_WEATHER_SERVER_VERSION=latest
 EM_WEATHER_SERVER_HOST_PORT=60606
-EM_WEATHER_DB_PASSWORD=<password>
+EM_WEATHER_DB_PASSWORD=<weather-server-db-password>
 ```
 
 
