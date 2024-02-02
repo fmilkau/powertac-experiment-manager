@@ -15,14 +15,13 @@ services:
         condition: service_healthy
     image: "ghcr.io/powertac/orchestrator:${EM_ORCHESTRATOR_VERSION}"
     volumes:
-      - "${PWD}:/var/opt/powertac"
+      - "${EM_ROOT_PATH}:/var/opt/powertac"
       - "./orchestrator.properties:/opt/powertac/orchestrator/application.properties"
       - "/var/run/docker.sock:/var/run/docker.sock"
     ports:
       - "${EM_HOST}:${EM_ORCHESTRATOR_HOST_PORT}:80"
     environment:
-      EM_ROOT_PATH: "${PWD}"
-      EM_WEATHER_SERVER_HOST_PORT: "${EM_WEATHER_SERVER_HOST_PORT}"
+      EM_ROOT_PATH: "${EM_ROOT_PATH}"
       MYSQL_PASSWORD: "${EM_ORCHESTRATOR_DB_PASSWORD}"
       EM_ADMIN_PASSWORD: "${EM_ADMIN_PASSWORD}"
 
@@ -45,14 +44,14 @@ services:
     container_name: powertac-orchestrator-db
     image: "mariadb:latest"
     volumes:
-      - "${PWD}/persistence/orchestrator:/var/lib/mysql"
+      - "${EM_ROOT_PATH}/persistence/orchestrator:/var/lib/mysql"
     environment:
       MYSQL_DATABASE: powertac_orchestrator
       MYSQL_USER: powertac_orchestrator
       MYSQL_PASSWORD: "${EM_ORCHESTRATOR_DB_PASSWORD}"
       MYSQL_ROOT_PASSWORD: "${EM_ORCHESTRATOR_DB_PASSWORD}"
     healthcheck:
-      test: "/usr/bin/mysql -upowertac_orchestrator -p${EM_ORCHESTRATOR_DB_PASSWORD} --execute \"USE powertac_orchestrator;\""
+      test: "/usr/bin/mariadb -upowertac_orchestrator -p${EM_ORCHESTRATOR_DB_PASSWORD} --execute \"USE powertac_orchestrator;\""
       start_period: 30s
       interval: 1s
       timeout: 1s
@@ -62,7 +61,7 @@ services:
     container_name: powertac-weather-db
     image: "mariadb:latest"
     volumes:
-      - "${PWD}/persistence/weather-server:/var/lib/mysql"
+      - "${EM_ROOT_PATH}/persistence/weather-server:/var/lib/mysql"
       - "./weather-data.sql:/var/opt/powertac/weather.sql"
     command: ["--max_allowed_packet=100000000"]
     environment:
@@ -71,7 +70,7 @@ services:
       MYSQL_PASSWORD: "${EM_WEATHER_DB_PASSWORD}"
       MYSQL_ROOT_PASSWORD: "${EM_ORCHESTRATOR_DB_PASSWORD}"
     healthcheck:
-      test: "/usr/bin/mysql -upowertac_weather -p${EM_WEATHER_DB_PASSWORD} --execute \"USE powertac_weather;\""
+      test: "/usr/bin/mariadb -upowertac_weather -p${EM_WEATHER_DB_PASSWORD} --execute \"USE powertac_weather;\""
       start_period: 30s
       interval: 1s
       timeout: 1s

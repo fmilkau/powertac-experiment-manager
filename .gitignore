@@ -1,7 +1,3 @@
 .idea
-baselines
-brokers
-games
-persistence
-treatments
-.env
+.powertac
+*.env

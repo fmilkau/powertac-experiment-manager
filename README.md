@@ -72,10 +72,10 @@ cd /path/to/experiment-manager
 ### Setup
 
 ```shell
-docker compose --file em.compose.yml --env-file .env up --detach
+docker compose --file compose.yml --env-file .env up --detach
 ```
 
-On first time setup, this command may take some time to complete. Afterwards the web client should be available in your
+On first time setup, this command may take some time to complete. Afterward the web client should be available in your
 browser via `http://localhost:60600` (assuming you used the default configuration) or in a more generalized form via
 `http://<EM_HOST>:<EM_WEB_CLIENT_HOST_PORT>`.
 
@@ -83,10 +83,10 @@ browser via `http://localhost:60600` (assuming you used the default configuratio
 
 ```shell
 # stop
-docker compose --file em.compose.yml --env-file .env stop
+docker compose --file compose.yml --env-file .env stop
 
 # start
-docker compose --file em.compose.yml --env-file .env start
+docker compose --file compose.yml --env-file .env start
 ```
 
 These commands will respectively start and stop the service containers.
@@ -94,7 +94,7 @@ These commands will respectively start and stop the service containers.
 ### Remove
 
 ```shell
-docker compose --file em.compose.yml --env-file .env down
+docker compose --file compose.yml --env-file .env down
 ```
 
 This command will remove the service containers. To completely remove all associated resources
