@@ -8,12 +8,12 @@
 - (root privileges - depending on your OS)
 
 
-## Preparation
+## Installation
 
 On Linux, make sure that your current user has access to the `docker` command. Please refer to the documentation for
 details: [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
 
-### Service images
+### Pull service images
 
 The Experiment Manager (EM) requires the following Docker images to work properly:
 
@@ -31,7 +31,7 @@ docker pull ghcr.io/powertac/orchestrator:latest
 docker pull ghcr.io/powertac/web-client:latest
 docker pull ghcr.io/powertac/server:latest 
 docker pull ghcr.io/powertac/weather-server:latest
-docker pull ghcr.io/powertac/logprocessor:latest
+docker pull ghcr.io/powertac/log-processor:latest
 docker pull ghcr.io/powertac/analysis:latest
 ```
 
@@ -40,7 +40,7 @@ can find a list of available image versions. The latest stable versions are alwa
 `ghcr.io/powertac/server:latest`.
 
 
-### Configuration
+### Create `.env`
 
 On top of the configuration files included in this repository, you need a file containing your machine specific
 configuration (e.g. passwords).  
@@ -70,7 +70,7 @@ EM_WEATHER_DB_PASSWORD=<weather-server-db-password>
 ```
 
 
-### Setup
+### Run `docker compose`
 
 The EM consists of several core services that are run inside Docker containers:
 
@@ -98,10 +98,9 @@ complete.
 
 ### Build broker images
 
-To run Power TAC simulations (games), the EM requires one or more broker images.
-
-Please refer to the [powertac/broker-images](https://github.com/powertac/broker-images) repository for build
-instructions for some of the existing brokers.
+To run Power TAC simulations (games), the EM requires one or more broker images. Please refer to the
+[powertac/broker-images](https://github.com/powertac/broker-images) repository for build instructions for some of the
+existing brokers.
 
 New brokers with can be added to the experiment manager via the user interface at any time.
 
