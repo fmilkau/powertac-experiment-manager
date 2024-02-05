@@ -45,7 +45,7 @@ can find a list of available image versions. The latest stable versions are alwa
 On top of the configuration files included in this repository, you need a file containing your machine specific
 configuration (e.g. passwords).  
 
-Rename the default configuration `.env.example` to `.env` and adapt it to your requirements. The default configuration
+Rename the default configuration `example.env` to `.env` and adapt it to your requirements. The default configuration
 is designed to run the Experiment Manager in local mode, meaning that it is only available on the machine it is running
 on.
 

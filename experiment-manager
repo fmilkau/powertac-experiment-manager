@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+# check if docker command is available
+if ! command -v docker &> /dev/null
+then
+    echo "! Power TAC Experiment Manager is depending on the 'docker' command which doesn't seem to be installed.
+! Please check README.md for installation instructions."
+    exit 1
+fi
+
+# check if docker compose is available
+if ! docker compose &> /dev/null
+then
+    echo "! Power TAC Experiment Manager is depending on the 'docker compose' plugin which doesn't seem to be installed.
+! Please check README.md for installation instructions."
+    exit 1
+fi
+
+# format list of strings for use in usage info messages
+list_options() {
+  for s in "$@"; do
+    printf "    %s\n" "$s"
+  done
+}
+
+general_usage_message="Usage: experiment-manager <COMMAND>
+
+COMMANDS
+    pull      pulls service images
+    setup     setup the experiment manager services
+    start     start the experiment manager services
+    stop      stop the experiment manager services
+    restart   restart the experiment manager services
+    help      shows usage information
+              use 'experiment-manager <COMMAND> help' to show command specific usage information"
+
+command="$1"
+
+# show help message
+if [ -z "$command" ] || [ "$command" == "help" ]; then
+  echo "$general_usage_message"
+  exit 0
+fi
+
+# pull command
+if [ "$command" == "pull" ]; then
+  available_services=('orchestrator' 'web-client' 'weather-server' 'server' 'log-processor' 'analysis')
+  pull_usage_message="Usage: experiment-manager pull [<SERVICE>] [<VERSION>]
+
+SERVICES
+    all             (default) pulls images for all managed services
+$(list_options "${available_services[@]}")
+
+VERSION
+    image version; use 'latest' for latest stable version
+    available versions can be found here https://github.com/orgs/powertac/packages"
+
+  # parse service id
+  service="$2"
+  if [ -z "$service" ]; then
+    service="all"
+  fi
+
+  # parse version name
+  version="$3"
+  if [ -z "$version" ]; then
+    version="latest"
+  fi
+
+  # show help message
+  if [ "$service" == "help" ]; then
+    echo "$pull_usage_message"
+    exit 0
+  fi
+
+  # pull all specified images
+  for service_name in "${available_services[@]}"; do
+    if [ "$service" == "$service_name" ] || [ "$service" == "all" ]; then
+      image_id="ghcr.io/powertac/$service_name:$version"
+      if docker pull "$image_id"; then
+        printf "\n"
+      else
+        echo "! ERROR: could not pull '$image_id'"
+        exit 1
+      fi
+    fi
+    exit 0
+  done
+
+  # show command parse error
+  echo "! Unrecognized service '$service'
+! Use 'experiment-manager pull help' for usage information"
+  exit 0
+fi
+
+# the following commands are path dependant; em_dir resolves to powertac-experiment-manager root dir
+em_dir=$( dirname -- "$( readlink -f -- "$0"; )"; )
+
+# first time setup
+if [ "$command" == "setup" ]; then
+
+  # check if env file exists
+  env_file_path="$em_dir/.env"
+  if [ ! -f "$env_file_path" ]; then
+    echo "! .env file does not exist in $env_file_path.
+! Please check the README for details."
+    exit 1
+  fi
+
+  # shellcheck source=.env
+  source "$env_file_path"
+
+  # create service according to compose.yml and .env
+  docker compose --project-directory "$em_dir" up --detach
+
+  echo "
++ Services created!
++ Please wait a bit to allow the services to setup their respective environments.
++ The web client should be available shortly (http://$EM_HOST:$EM_WEB_CLIENT_HOST_PORT)."
+  exit 0
+fi
+
+# service control commands can be relayed directly to docker compose
+if [ "$command" == "start" ] || [ "$command" == "restart" ] || [ "$command" == "stop" ]; then
+  docker compose --project-directory "$em_dir" "$command"
+  exit 0
+fi
+
+echo "! Unrecognized command '$command'
+! Use 'help' command to show usage information"
+exit 1
