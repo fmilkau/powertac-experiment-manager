@@ -49,12 +49,17 @@ Rename the default configuration `example.env` to `.env` and adapt it to your re
 is designed to run the Experiment Manager in local mode, meaning that it is only available on the machine it is running
 on.
 
-For a basic local deployment, simply change the passwords `EM_ADMIN_PASSWORD`, `EM_ORCHESTRATOR_DB_PASSWORD` and
-`EM_WEATHER_DB_PASSWORD`.
+For a basic local deployment, the following env variables must be set:
+
+- `EM_ROOT_PATH`: **absolute** path to the EM data directory 
+- the following passwords:
+  - `EM_ADMIN_PASSWORD` for access via the user interface
+  - `EM_ORCHESTRATOR_DB_PASSWORD` to secure the orchestrator database
+  - - `EM_ORCHESTRATOR_DB_PASSWORD` to secure the weather server database
 
 ```dotenv
 EM_HOST=127.0.0.1
-EM_ROOT_PATH=${PWD}/.powertac
+EM_ROOT_PATH=/path/to/.powertac
 EM_ADMIN_PASSWORD=<admin-password>
 
 EM_WEB_CLIENT_VERSION=latest
@@ -67,6 +72,9 @@ EM_ORCHESTRATOR_DB_PASSWORD=<orchestrator-db-password>
 EM_WEATHER_SERVER_VERSION=latest
 EM_WEATHER_SERVER_HOST_PORT=60606
 EM_WEATHER_DB_PASSWORD=<weather-server-db-password>
+
+EM_LOGPROCESSOR_VERSION=latest
+EM_ANALYSIS_VERSION=latest
 ```
 
 

@@ -23,14 +23,60 @@ list_options() {
   done
 }
 
+# tries to load vars from experiment manager .env file
+load_env() {
+
+  cwd=$PWD
+  dir="$1"
+  filename="$2"
+
+  # switch to em dir to resolve pwd correctly
+  cd "$dir" || exit 1
+
+  # check if file exists
+  if [ ! -f "$filename" ]; then
+    echo "! .env file does not exist in '$em_dir/$filename'.
+! Please check the README for details."
+    exit 1
+  fi
+
+  # load variables
+  # shellcheck source=.env
+  source "$filename"
+
+  # shellcheck disable=SC2164
+  cd "$cwd"
+}
+
+em_containers=("powertac-orchestrator" "powertac-web-client" "powertac-weather-server" "powertac-orchestrator-db" "powertac-weather-db")
+
+# checks if containers exist
+containers_exist() {
+  all_exist=1
+  for container_name in "$@"; do
+    if docker container inspect "$container_name" >& /dev/null; then
+      echo " + service container $container_name exists"
+    else
+      echo " - service container $container_name does not exist"
+      all_exist=0
+    fi
+  done
+  if [ $all_exist -eq 0  ]; then
+    return 1
+  fi
+}
+
 general_usage_message="Usage: experiment-manager <COMMAND>
 
 COMMANDS
     pull      pulls service images
-    setup     setup the experiment manager services
-    start     start the experiment manager services
-    stop      stop the experiment manager services
-    restart   restart the experiment manager services
+    setup     sets up the services
+    status    shows service container status
+    start     starts the services
+    stop      stops the services
+    restart   restarts the services
+    remove    removes the services
+    purge     removes the services and data directory (may require root privileges)
     help      shows usage information
               use 'experiment-manager <COMMAND> help' to show command specific usage information"
 
@@ -74,9 +120,10 @@ VERSION
   fi
 
   # pull all specified images
-  for service_name in "${available_services[@]}"; do
-    if [ "$service" == "$service_name" ] || [ "$service" == "all" ]; then
-      image_id="ghcr.io/powertac/$service_name:$version"
+  for container_name in "${available_services[@]}"; do
+    if [ "$service" == "$container_name" ] || [ "$service" == "all" ]; then
+      service_matched=1
+      image_id="ghcr.io/powertac/$container_name:$version"
       if docker pull "$image_id"; then
         printf "\n"
       else
@@ -84,12 +131,15 @@ VERSION
         exit 1
       fi
     fi
-    exit 0
   done
 
-  # show command parse error
-  echo "! Unrecognized service '$service'
+  # show error for unknown service
+  if [ ! $service_matched ]; then
+    echo "! Unrecognized service '$service'
 ! Use 'experiment-manager pull help' for usage information"
+    exit 1
+  fi
+
   exit 0
 fi
 
@@ -99,16 +149,15 @@ em_dir=$( dirname -- "$( readlink -f -- "$0"; )"; )
 # first time setup
 if [ "$command" == "setup" ]; then
 
-  # check if env file exists
-  env_file_path="$em_dir/.env"
-  if [ ! -f "$env_file_path" ]; then
-    echo "! .env file does not exist in $env_file_path.
-! Please check the README for details."
+  # load vars from env file
+  if ! load_env "$em_dir" ".env"; then
     exit 1
   fi
 
-  # shellcheck source=.env
-  source "$env_file_path"
+  # pull latest service versions specified in .env
+  docker compose --project-directory "$em_dir" pull --policy always
+  docker pull ghcr.io/log-processor:"$EM_LOGPROCESSOR_VERSION"
+  docker pull ghcr.io/analysis:"$EM_ANALYSIS_VERSION"
 
   # create service according to compose.yml and .env
   docker compose --project-directory "$em_dir" up --detach
@@ -122,7 +171,48 @@ fi
 
 # service control commands can be relayed directly to docker compose
 if [ "$command" == "start" ] || [ "$command" == "restart" ] || [ "$command" == "stop" ]; then
+  if ! containers_exist "${em_containers[@]}"; then
+    echo "
+! One or more service containers are not set up.
+! Use the 'setup' command to setup the experiment manager services."
+    exit 1
+  fi
+echo "what"
   docker compose --project-directory "$em_dir" "$command"
+  exit 0
+fi
+
+# for now status is an alias for 'docker compose ps'
+if [ "$command" == "status" ]; then
+  docker compose --project-directory "$em_dir" ps
+  exit 0
+fi
+
+# remove only removes the service containers
+if [ "$command" == "remove" ]; then
+  docker compose --project-directory "$em_dir" down
+  exit 0
+fi
+
+# purge removes the service containers and the data directory (default: ${PWD}/.powertac)
+if [ "$command" == "purge" ]; then
+
+  if ! load_env "$em_dir" ".env"; then
+    exit 1
+  fi
+
+  # if poorly configured, this command might affect parts of the system outside of the EM scope
+  # therefor: get user confirmation!
+  echo "This command will remove the following resources WITHOUT ANY RECOVERY OPTIONS:
+ - the directory '$EM_ROOT_PATH'
+ - all service containers
+ "
+  read -p "Are you sure ýou want to continue? [y/n] " -r
+
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    docker compose --project-directory "$em_dir" down
+    rm -rfv "${EM_ROOT_PATH}"
+  fi
   exit 0
 fi
 
