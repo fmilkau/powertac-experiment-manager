@@ -155,11 +155,14 @@ if [ "$command" == "setup" ]; then
   fi
 
   # pull latest service versions specified in .env
+  # FIXME - add error handling for this part
   docker compose --project-directory "$em_dir" pull --policy always
-  docker pull ghcr.io/log-processor:"$EM_LOGPROCESSOR_VERSION"
-  docker pull ghcr.io/analysis:"$EM_ANALYSIS_VERSION"
+  docker pull ghcr.io/powertac/server:"$EM_SERVER_VERSION"
+  docker pull ghcr.io/powertac/log-processor:"$EM_LOGPROCESSOR_VERSION"
+  docker pull ghcr.io/powertac/analysis:"$EM_ANALYSIS_VERSION"
 
   # create service according to compose.yml and .env
+  # FIXME - add error handling for this part
   docker compose --project-directory "$em_dir" up --detach
 
   echo "

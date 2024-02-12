@@ -24,6 +24,7 @@ services:
       EM_ROOT_PATH: "${EM_ROOT_PATH}"
       MYSQL_PASSWORD: "${EM_ORCHESTRATOR_DB_PASSWORD}"
       EM_ADMIN_PASSWORD: "${EM_ADMIN_PASSWORD}"
+      EM_SERVER_VERSION: "${EM_SERVER_VERSION}"
 
   weather-server:
     container_name: powertac-weather-server
