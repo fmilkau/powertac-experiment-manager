@@ -23,6 +23,8 @@ cd /path/to/powertac-experiment-manager
 
 ### Configuration
 
+> _You can add the `experiment-manager` CLI to your path or use it as a script from this directory._ 
+
 On top of the configuration files included in this repository, you need a file containing your system-specific
 configuration (e.g. passwords).  
 
