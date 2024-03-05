@@ -39,21 +39,23 @@ template:
 >  - `EM_WEATHER_DB_PASSWORD` to secure the weather server database
 
 ```dotenv
-EM_HOST=127.0.0.1
-EM_ROOT_PATH=/path/to/.powertac
+# these variables must be adapted for your system
+EM_ROOT_PATH=/absolute/path/to/.powertac
 EM_ADMIN_PASSWORD=<admin-password>
-
-EM_WEB_CLIENT_VERSION=latest
-EM_WEB_CLIENT_HOST_PORT=60600
-
-EM_ORCHESTRATOR_VERSION=latest
-EM_ORCHESTRATOR_HOST_PORT=60603
 EM_ORCHESTRATOR_DB_PASSWORD=<orchestrator-db-password>
-
-EM_WEATHER_SERVER_VERSION=latest
-EM_WEATHER_SERVER_HOST_PORT=60606
 EM_WEATHER_DB_PASSWORD=<weather-server-db-password>
 
+# default configuration - only change if required
+EM_HOST=127.0.0.1
+EM_WEB_CLIENT_HOST_PORT=60600
+EM_ORCHESTRATOR_HOST_PORT=60603
+EM_WEATHER_SERVER_HOST_PORT=60606
+
+# image versions - only change if required 
+EM_ORCHESTRATOR_VERSION=latest
+EM_WEB_CLIENT_VERSION=latest
+EM_WEATHER_SERVER_VERSION=latest
+EM_SERVER_VERSION=latest
 EM_LOGPROCESSOR_VERSION=latest
 EM_ANALYSIS_VERSION=latest
 ```
