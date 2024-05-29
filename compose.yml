@@ -27,6 +27,7 @@ services:
       EM_SERVER_VERSION: "${EM_SERVER_VERSION}"
       EM_LOGPROCESSOR_VERSION: "${EM_LOGPROCESSOR_VERSION}"
       EM_ANALYSIS_VERSION: "${EM_ANALYSIS_VERSION}"
+      EM_HOST_IP: "${EM_HOST}"
 
   weather-server:
     container_name: powertac-weather-server
