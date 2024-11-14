@@ -205,7 +205,7 @@ if [ "$command" == "purge" ]; then
   fi
 
   # if poorly configured, this command might affect parts of the system outside of the EM scope
-  # therefor: get user confirmation!
+  # therefor: get user confirmation for the ways it impacts the system!
   echo "This command will remove the following resources WITHOUT ANY RECOVERY OPTIONS:
  - the directory '$EM_ROOT_PATH'
  - all service containers
